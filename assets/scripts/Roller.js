@@ -23,21 +23,21 @@ cc.Class({
             type: cc.Prefab,
         },
 
-        // symbolRow: {
-        //     default: 0,
-        //     type: cc.Integer,
-        //     notify() {
-        //         this.initSymbol();
-        //     },
-        // }, // 欄
+        symbolRow: {
+            default: 0,
+            type: cc.Integer,
+            notify() {
+                this.adjustIDEDisplaySymbols();
+            },
+        }, // 欄
 
-        // symbolColumn: {
-        //     default: 0,
-        //     type: cc.Integer,
-        //     notify() {
-        //         this.initSymbol();
-        //     },
-        // }, // 列
+        symbolColumn: {
+            default: 0,
+            type: cc.Integer,
+            notify() {
+                this.adjustIDEDisplaySymbols();
+            },
+        }, // 列
 
 
     },
@@ -55,7 +55,7 @@ cc.Class({
         this.totalMoveSpacing = 0;
         this.symbolMoveDownCounts = 20;
         this.changeSymbolCount = 0;
-        this.symbolResult = [];
+        this.symbolResult = [1, 3, 3, 3, 1, 1, 1, 3, 4];
         this.initSymbol();
     },
 
@@ -79,7 +79,7 @@ cc.Class({
                     this.isStartRoll = false;
                     this.rollerState = rollerState.IDLE;
                     this.adjustSymbolPosition();
-                    this.startSymbolAnime();
+                    this.startSymbolAnime(this.dealSymbolResult(this.getCurrentSymbolResult(this.symbolRow)));
                     this.node.emit('rollerStop');
                     break;
                 default:
@@ -88,6 +88,43 @@ cc.Class({
         }
     },
 
+    adjustIDEDisplaySymbols() {
+        if (this.symbolRow <= 0 || this.symbolColumn <= 0) {
+            return;
+        }
+        cc.log(`symbolRow: ${this.symbolRow}, symbolColumn: ${this.symbolColumn}`);
+        this.fisrtSymbolX = -140;
+        this.fisrtSymbolY = 280;
+        this.symbolList = this.node.children;
+        const symbolsSize = this.symbolList.length;
+        for (let a = 0; a < symbolsSize; a += 1) {
+            this.symbolList[a].destroy();
+        }
+        this.symbolList.length = 0;
+        this.symbolList = [];
+        const symbolMaxCounts = this.symbolRow * (this.symbolColumn + 2);
+        let x = -140;
+        let y = 280;
+        cc.log(`symbolMaxCounts:${symbolMaxCounts}`);
+
+        for (let b = 0; b < symbolMaxCounts; b += 1) {
+            const symbolNode = cc.instantiate(this.symbolPrefab);
+            this.node.addChild(symbolNode);
+            this.symbolList.push(symbolNode);
+        }
+        cc.log(`childrenCount:${this.node.childrenCount}`);
+        let count = 0;
+        for (let i = 0; i < this.symbolColumn + 2; i += 1) {
+            for (let j = 0; j < this.symbolRow; j += 1) {
+                // cc.log(`count: ${count} x: ${x}, y: ${y}`);
+                this.symbolList[count].setPosition(x, y);
+                x += this.symbolList[count].width;
+                count += 1;
+            }
+            x = this.fisrtSymbolX;
+            y -= this.symbolList[0].height;
+        }
+    },
     /**
      * 初始 Symbol
      */
@@ -132,7 +169,7 @@ cc.Class({
      */
     updateSymbolPosition() {
         for (let i = 0; i < this.symbolList.length; i += 1) {
-            this.symbolList[i].setPosition(0, this.symbolList[i].y - this.symbolList[i].height * this.moveSpacing);
+            this.symbolList[i].setPosition(this.symbolList[i].x, this.symbolList[i].y - this.symbolList[i].height * this.moveSpacing);
         }
         this.totalMoveSpacing += this.moveSpacing;
     },
@@ -142,18 +179,20 @@ cc.Class({
      */
     setLastSymbolToFist() {
         if (this.totalMoveSpacing >= 1) {
-            const lastSymbol = this.symbolList.pop();
-            lastSymbol.y = this.firstSymbolY;
+            for (let i = 0; i < this.symbolRow; i += 1) {
+                const lastSymbol = this.symbolList.pop();
+                lastSymbol.y = this.firstSymbolY;
 
-            if (this.symbolResult.length > 0
-                && this.changeSymbolCount >= (this.symbolMoveDownCounts - this.symbolResult.length - 1)) {
-                this.setDisplaySymbol(lastSymbol, this.symbolResult.pop());
-            }
-            else {
-                this.setDisplaySymbol(lastSymbol, this.getRandomSymbolIndex(lastSymbol.childrenCount));
-            }
+                if (this.symbolResult.length > 0
+                    && this.changeSymbolCount >= (this.symbolMoveDownCounts - this.symbolColumn - 1)) {
+                    this.setDisplaySymbol(lastSymbol, this.symbolResult.pop());
+                }
+                else {
+                    this.setDisplaySymbol(lastSymbol, this.getRandomSymbolIndex(lastSymbol.childrenCount));
+                }
 
-            this.symbolList.unshift(lastSymbol);
+                this.symbolList.unshift(lastSymbol);
+            }
             this.totalMoveSpacing = 0;
             this.changeSymbolCount += 1;
         }
@@ -185,11 +224,17 @@ cc.Class({
     /**
      * 開始 Symbol 動畫 (輪巡)
      */
-    startSymbolAnime() {
+    startSymbolAnime(symbolPositions) {
         for (let i = 0; i < this.symbolList.length; i += 1) {
             for (let j = 0; j < this.symbolList[i].childrenCount; j += 1) {
                 if (this.symbolList[i].children[j].active === true) {
-                    this.symbolList[i].children[j].getComponent(cc.Animation).play().wrapMode = cc.WrapMode.Loop;
+                    if (symbolPositions === undefined || symbolPositions.indexOf(i) === -1) {
+                        const symbolComponent = this.symbolList[i].children[j].getComponent('Symbol');
+                        this.symbolList[i].children[j].getComponent(cc.Sprite).spriteFrame = symbolComponent.fisrtSymbol;
+                    }
+                    else {
+                        this.symbolList[i].children[j].getComponent(cc.Animation).play().wrapMode = cc.WrapMode.Loop;
+                    }
                 }
             }
         }
@@ -217,5 +262,63 @@ cc.Class({
         if (symbols) {
             this.symbolResult = symbols;
         }
+    },
+
+    getCurrentSymbolResult(row) {
+        if (row === undefined) {
+            row = 0;
+        }
+        const symbols = [];
+        for (let i = 0 + row; i < this.symbolList.length - row; i += 1) {
+            for (let j = 0; j < this.symbolList[i].childrenCount; j += 1) {
+                if (this.symbolList[i].children[j].active === true) {
+                    symbols.push(j);
+                }
+            }
+        }
+
+        return symbols;
+    },
+
+    dealSymbolResult(symbolResult) {
+        const symboIndexList = [0, 1, 2, 3, 4];
+        const symbolWinInfoList = symboIndexList.map((value, index) => ({
+            index: value,
+            isWin: false,
+            positions: [],
+            winPoint: 0,
+        }));
+
+        const fisrtRowSymbolPosList = [];
+        const symbolPosOfRowList = [];
+        symbolResult.forEach((value, index) => {
+            if (index === 0 || index % this.symbolRow === 0) {
+                fisrtRowSymbolPosList.push(index);
+            }
+        });
+
+        for (let j = 0; j < this.symbolRow; j += 1) {
+            symbolPosOfRowList.push(fisrtRowSymbolPosList.map(val => val + j));
+        }
+
+        const winSymbolIndexList = symboIndexList.filter((value) => {
+            let rowCounts = 0;
+            symbolPosOfRowList.forEach((positions) => {
+                const result = positions.find(pos => symbolResult[pos] === value);
+                if (result !== undefined) ++rowCounts;
+            });
+            return rowCounts === this.symbolRow;
+        });
+
+        cc.log(`winSymbolIndexList:${winSymbolIndexList}`);
+
+        const winSymbolIndexPosList = [];
+        winSymbolIndexList.forEach((value) => {
+            symbolResult.forEach((symbl, pos) => {
+                if (value === symbl) winSymbolIndexPosList.push(pos + this.symbolRow);
+            });
+        });
+        cc.log(`winSymbolIndexPosList:${winSymbolIndexPosList}`);
+        return winSymbolIndexPosList;
     },
 });

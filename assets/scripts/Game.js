@@ -50,7 +50,7 @@ cc.Class({
     onSpin() {
         this.buttonNode.getComponent(cc.Button).interactable = false; // 禁能
         this.rollerNode.getComponent('Roller').startRolling();
-        this.netNode.getComponent('Net').sendMessage('SlotSpin', { symbolCounts: 3, symbolIndexCounts: 5 });
+        this.netNode.getComponent('Net').sendMessage('SlotSpin', { symbolCounts: 9, symbolIndexCounts: 5 });
     },
 
     /**
