@@ -39,7 +39,11 @@ cc.Class({
     onLoad() {
         this.rollerNode.on('rollerStop', this.rollerStopCB, this);
         this.scoreNode.on('scoreStop', this.scoreStopCB, this);
-        this.netNode.on('receiveServerMessage', this.receiveServerMessageCB, this);
+        const node = cc.find('net');
+        if (node !== null) {
+            this.netNode = node;
+            this.netNode.on('receiveServerMessage', this.receiveServerMessageCB, this);
+        }
     },
 
     update(dt) {},
@@ -76,6 +80,10 @@ cc.Class({
         if (msg) {
             const pkg = JSON.parse(msg);
             switch (pkg.type) {
+                case 'GameInit':
+                    cc.log(pkg.message.symbols);
+                    this.rollerNode.getComponent('Roller').setSymbolResult(pkg.message.symbols);
+                    break;
                 case 'SlotSpin':
                     cc.log(pkg.message.symbols);
                     this.rollerNode.getComponent('Roller').setSymbolResult(pkg.message.symbols);

@@ -25,25 +25,25 @@ cc.Class({
 
     // LIFE-CYCLE CALLBACKS:
 
-    onLoad () {
+    onLoad() {
         this.netNode.on('receiveServerConnected', this.receiveServerConnected, this);
         this.netNode.on('receiveServerMessage', this.receiveServerMessageCB, this);
     },
 
-    start () {
+    start() {
 
     },
 
-    inputUserNameEnded(editbox, customEventData){
+    inputUserNameEnded(editbox, customEventData) {
         this.userName = editbox.string;
     },
 
-    onLogin(){
+    onLogin() {
         this.buttonNode.getComponent(cc.Button).interactable = false; // 禁能
         this.netNode.getComponent('Net').connect('ws://127.0.0.1:8080');
     },
 
-    receiveServerConnected(msg){
+    receiveServerConnected(msg) {
         this.netNode.getComponent('Net').sendMessage('Login', { userName: this.userName });
     },
 
@@ -57,6 +57,7 @@ cc.Class({
             switch (pkg.type) {
                 case 'Login':
                     cc.log(JSON.stringify(pkg.message));
+                    cc.director.loadScene('game');
                     break;
                 default:
                     break;

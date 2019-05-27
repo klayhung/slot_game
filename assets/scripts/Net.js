@@ -17,12 +17,13 @@ cc.Class({
     },
 
     onLoad() {
-        //socket.connect('ws://127.0.0.1:8080', this.onMessageCB.bind(this));
+        cc.game.addPersistRootNode(this.node);
+        // socket.connect('ws://127.0.0.1:8080', this.onMessageCB.bind(this));
     },
 
-    connect(url){
-        socket.connect(url, 
-            this.onOpenCB.bind(this), 
+    connect(url) {
+        socket.connect(url,
+            this.onOpenCB.bind(this),
             this.onMessageCB.bind(this));
     },
 

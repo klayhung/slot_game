@@ -130,7 +130,12 @@ cc.Class({
      */
     initSymbol() {
         for (let i = 0; i < this.symbolList.length; i += 1) {
-            this.setDisplaySymbol(this.symbolList[i], this.getRandomSymbolIndex(this.symbolList[i].childrenCount));
+            if (i >= this.symbolRow && i < this.symbolResult.length + this.symbolRow) {
+                this.setDisplaySymbol(this.symbolList[i], this.symbolResult[i - this.symbolRow]);
+            }
+            else {
+                this.setDisplaySymbol(this.symbolList[i], this.getRandomSymbolIndex(this.symbolList[i].childrenCount));
+            }
             this.symbolPositions[i] = this.symbolList[i].getPosition();
         }
     },
