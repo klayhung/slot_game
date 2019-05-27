@@ -17,7 +17,22 @@ cc.Class({
     },
 
     onLoad() {
-        socket.connect('ws://127.0.0.1:8080', this.onMessageCB.bind(this));
+        //socket.connect('ws://127.0.0.1:8080', this.onMessageCB.bind(this));
+    },
+
+    connect(url){
+        socket.connect(url, 
+            this.onOpenCB.bind(this), 
+            this.onMessageCB.bind(this));
+    },
+
+    /**
+     * 收 web sockect 收到訊息通知，並轉發 event
+     * @param {String} msg
+     */
+    onOpenCB(msg) {
+        console.log(`Net: ${msg}`);
+        this.node.emit('receiveServerConnected', msg);
     },
 
     /**

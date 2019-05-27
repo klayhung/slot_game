@@ -1,5 +1,6 @@
 module.exports = {
     sock: null,
+    onOpenCB: null,
     onMessageCB: null,
 
     /**
@@ -8,6 +9,7 @@ module.exports = {
      */
     on_open(event) {
         console.log(`client connected: ${event}`);
+        this.onOpenCB(event.data);
     },
 
     /**
@@ -46,15 +48,17 @@ module.exports = {
     /**
      * 連線 Server
      * @param {String} url IP:Post
+     * @param {Function} openCB CallBack
      * @param {Function} messageCB CallBack
      */
-    connect(url, messageCB) {
+    connect(url, openCB, messageCB) {
         this.sock = new WebSocket(url);
         this.sock.binaryType = 'arraybuffer';
         this.sock.onopen = this.on_open.bind(this);
         this.sock.onmessage = this.on_message.bind(this);
         this.sock.onclose = this.on_close.bind(this);
         this.sock.onerror = this.on_error.bind(this);
+        this.onOpenCB = openCB;
         this.onMessageCB = messageCB;
     },
 
