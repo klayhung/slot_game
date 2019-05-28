@@ -17,19 +17,19 @@ cc.Class({
             type: cc.Label,
         },
 
-        curCredit: 1000,
+        curCredit: 0,
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
-        this.targetCredit = this.curCredit;
     },
 
     update(dt) {},
 
     setCredit(credit) {
         this.curCredit = credit;
+        this.targetCredit = credit;
     },
 
     updateCreditDisplay() {

@@ -21,6 +21,11 @@ cc.Class({
             default: null,
             type: cc.Node,
         },
+
+        userNode: {
+            default: null,
+            type: cc.Node,
+        },
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -56,7 +61,8 @@ cc.Class({
             const pkg = JSON.parse(msg);
             switch (pkg.type) {
                 case 'Login':
-                    cc.log(JSON.stringify(pkg.message));
+                    cc.log(JSON.stringify(pkg.message.userInfo));
+                    this.userNode.getComponent('User').setUserInfo(pkg.message.userInfo);
                     cc.director.loadScene('game');
                     break;
                 default:

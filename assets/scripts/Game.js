@@ -8,7 +8,6 @@
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] https://www.cocos2d-x.org/docs/creator/manual/en/scripting/life-cycle-callbacks.html
 
-
 cc.Class({
     extends: cc.Component,
 
@@ -38,6 +37,11 @@ cc.Class({
             type: cc.Node,
         },
 
+        userNode: {
+            default: null,
+            type: cc.Node,
+        },
+
         winloseNode: {
             default: null,
             type: cc.Node,
@@ -47,12 +51,18 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
+        this.totalBet = 100;
         this.rollerNode.on('rollerStop', this.rollerStopCB, this);
         this.creditNode.on('creditStop', this.creditStopCB, this);
         // this.scoreNode.on('scoreStop', this.scoreStopCB, this);
-        const node = cc.find('net');
-        if (node !== null) {
-            this.netNode = node;
+        const user = cc.find('user');
+        if (user !== null) {
+            this.userNode = user;
+        }
+
+        const net = cc.find('net');
+        if (net !== null) {
+            this.netNode = net;
             this.netNode.on('receiveServerMessage', this.receiveServerMessageCB, this);
         }
     },
@@ -63,15 +73,16 @@ cc.Class({
         this.symbolIndexCounts = roller.symbolIndexCounts;
         this.symbolRow = roller.symbolRow;
 
-        this.netNode.getComponent('Net').sendMessage('SymbolResult',
-            { symbolCounts: this.symbolCounts, symbolIndexCounts: this.symbolIndexCounts });
+        this.netNode.getComponent('Net').sendMessage('GameInit',
+            {
+                symbolCounts: this.symbolCounts,
+                symbolIndexCounts: this.symbolIndexCounts,
+            });
 
-        this.creditNode.getComponent('Credit').setCredit(1000);
+        const credit = this.userNode.getComponent('User').userCredit;
+        this.creditNode.getComponent('Credit').setCredit(credit);
         this.creditNode.getComponent('Credit').updateCreditDisplay();
-        this.winloseNode.getComponent('WinLose').initWinlose(this.symbolIndexCounts, this.symbolRow);
     },
-
-    update(dt) {},
 
     /**
      * 按鈕 Spin 觸發
@@ -79,8 +90,12 @@ cc.Class({
     onSpin() {
         this.buttonNode.getComponent(cc.Button).interactable = false; // 禁能
         this.rollerNode.getComponent('Roller').startRolling();
-        this.netNode.getComponent('Net').sendMessage('SymbolResult',
-            { symbolCounts: this.symbolCounts, symbolIndexCounts: this.symbolIndexCounts });
+        this.netNode.getComponent('Net').sendMessage('SlotSpin',
+            {
+                totalBet: this.totalBet,
+                symbolCounts: this.symbolCounts,
+                symbolIndexCounts: this.symbolIndexCounts,
+            });
     },
 
     /**
@@ -88,7 +103,15 @@ cc.Class({
      */
     rollerStopCB() {
         // this.scoreNode.getComponent('Score').startRunScore();
-        this.creditNode.getComponent('Credit').startRunCredit(300);
+        const totalWin = this.winloseNode.getComponent('WinLose').getTotalWin();
+        if (totalWin > 0) {
+            const winPositions = this.winloseNode.getComponent('WinLose').getWinPositions(this.symbolRow);
+            this.rollerNode.getComponent('Roller').startSymbolAnime(winPositions);
+            this.creditNode.getComponent('Credit').startRunCredit(totalWin);
+        }
+        else {
+            this.buttonNode.getComponent(cc.Button).interactable = true;
+        }
     },
 
     /**
@@ -107,10 +130,20 @@ cc.Class({
         if (msg) {
             const pkg = JSON.parse(msg);
             switch (pkg.type) {
-                case 'SymbolResult':
+                case 'GameInit':
+                    cc.log(pkg.message.odds);
                     cc.log(pkg.message.symbols);
                     this.rollerNode.getComponent('Roller').setSymbolResult(pkg.message.symbols);
                     this.rollerNode.getComponent('Roller').initSymbol();
+                    this.winloseNode.getComponent('WinLose').initWinLose(this.symbolIndexCounts, pkg.message.odds);
+                    break;
+                case 'SlotSpin':
+                    cc.log(pkg.message.symbols);
+                    cc.log(pkg.message.userCredit);
+                    this.rollerNode.getComponent('Roller').setSymbolResult(pkg.message.symbols);
+                    this.winloseNode.getComponent('WinLose').setWinLose(this.totalBet, pkg.message.symbols, this.symbolRow);
+                    this.creditNode.getComponent('Credit').setCredit(pkg.message.userCredit);
+                    this.creditNode.getComponent('Credit').updateCreditDisplay();
                     break;
                 default:
                     break;

@@ -58,7 +58,6 @@ cc.Class({
         this.symbolResult = [];
         this.symbolCounts = this.symbolRow * this.symbolColumn;
         this.symbolIndexCounts = this.getSymbolIndexCounts();
-        this.isInitSymbol = false;
         this.closeAllSymbolActive();
     },
 
@@ -153,17 +152,14 @@ cc.Class({
      * 初始 Symbol
      */
     initSymbol() {
-        if (!this.isInitSymbol) {
-            for (let i = 0; i < this.symbolList.length; i += 1) {
-                if (i >= this.symbolRow && i < this.symbolResult.length + this.symbolRow) {
-                    this.setDisplaySymbol(this.symbolList[i], this.symbolResult[i - this.symbolRow]);
-                }
-                else {
-                    this.setDisplaySymbol(this.symbolList[i], this.getRandomSymbolIndex(this.symbolList[i].childrenCount));
-                }
-                this.symbolPositions[i] = this.symbolList[i].getPosition();
+        for (let i = 0; i < this.symbolList.length; i += 1) {
+            if (i >= this.symbolRow && i < this.symbolResult.length + this.symbolRow) {
+                this.setDisplaySymbol(this.symbolList[i], this.symbolResult[i - this.symbolRow]);
             }
-            this.isInitSymbol = true;
+            else {
+                this.setDisplaySymbol(this.symbolList[i], this.getRandomSymbolIndex(this.symbolList[i].childrenCount));
+            }
+            this.symbolPositions[i] = this.symbolList[i].getPosition();
         }
     },
 

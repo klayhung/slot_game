@@ -27,12 +27,12 @@ cc.Class({
 
     },
 
-    setSymboIndexList(indexCounts) {
+    setSymbolIndexList(indexCounts) {
         for (let i = 0; i < indexCounts; i += 1) {
             this.symbolIndexList.push(i);
         }
 
-        this.symbolWinLoseList = this.symboIndexList.map((value, index) => ({
+        this.symbolWinLoseList = this.symbolIndexList.map((value, index) => ({
             index: value,
             isWin: false,
             positions: [],
@@ -40,17 +40,17 @@ cc.Class({
         }));
     },
 
-    setsymbolOddsList(odds) {
+    setSymbolOddsList(odds) {
         this.symbolOddsList = odds;
     },
 
-    initWinlose(indexCounts, odds) {
-        this.setSymboIndexList(indexCounts);
-        this.setsymbolOddsList(odds);
+    initWinLose(indexCounts, odds) {
+        this.setSymbolIndexList(indexCounts);
+        this.setSymbolOddsList(odds);
     },
 
     resetSymbolWinLoseList() {
-        this.symbolWinLoseList = this.symboIndexList.map((value, index) => ({
+        this.symbolWinLoseList = this.symbolIndexList.map((value, index) => ({
             index: value,
             isWin: false,
             positions: [],
@@ -78,41 +78,43 @@ cc.Class({
     },
 
     setWinLose(totalBet, symbolResult, symbolRow) {
-        const winSymbolIndexList = this.symboIndexList.filter((value) => {
+        this.resetSymbolWinLoseList();
+        const symbolPosOfRowList = this.getSymbolPosOfRowList(symbolResult, symbolRow);
+        const winSymbolIndexList = this.symbolIndexList.filter((value) => {
             let rowCounts = 0;
-            this.getSymbolPosOfRowList(symbolResult).forEach((positions) => {
+            symbolPosOfRowList.forEach((positions) => {
                 const result = positions.find(pos => symbolResult[pos] === value);
                 if (result !== undefined) ++rowCounts;
             });
-            return rowCounts === this.symbolRow;
+            return rowCounts === symbolRow;
         });
         cc.log(`winSymbolIndexList:${winSymbolIndexList}`);
-
-        // const winSymbolIndexPosList = [];
-        // winSymbolIndexList.forEach((value) => {
-        //     symbolResult.forEach((symbl, pos) => {
-        //         if (value === symbl) {
-        //             winSymbolIndexPosList.push(pos + this.symbolRow);
-        //         }
-        //     });
-        // });
-        // cc.log(`winSymbolIndexPosList:${winSymbolIndexPosList}`);
 
         this.symbolWinLoseList.forEach((symbol) => {
             if (winSymbolIndexList.includes(symbol.index)) {
                 symbol.isWin = true;
-
-                let symbolCounts = 0;
                 symbolResult.forEach((value, pos) => {
                     if (value === symbol.index) {
-                        symbol.positions.push(pos + this.symbolRow);
-                        ++symbolCounts;
+                        symbol.positions.push(pos);
                     }
                 });
 
+                const symbolCountOfRowList = [];
+                symbolPosOfRowList.forEach((positions) => {
+                    let countsOfRow = 0;
+                    positions.forEach((pos) => {
+                        if (symbol.positions.includes(pos)) {
+                            ++countsOfRow;
+                        }
+                    });
+                    symbolCountOfRowList.push(countsOfRow);
+                });
+
+                const symbolCounts = symbolCountOfRowList.reduce((first, second) => first * second);
                 symbol.winScore = totalBet * symbolCounts * this.symbolOddsList[symbol.index];
             }
         });
+        cc.log(`winSymbolIndexList:${JSON.stringify(this.symbolWinLoseList)}`);
     },
 
     getTotalWin() {
@@ -125,13 +127,15 @@ cc.Class({
         return totalWin;
     },
 
-    getWinPositions() {
+    getWinPositions(symbolRow) {
         let winPositions = [];
         this.symbolWinLoseList.forEach((symbol) => {
             if (symbol.isWin) {
                 winPositions = winPositions.concat(symbol.positions);
             }
         });
+
+        winPositions = winPositions.map(val => val + symbolRow);
         return winPositions;
     },
 });
