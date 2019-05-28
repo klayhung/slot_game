@@ -12,36 +12,36 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        scoreDisplay: {
+        creditDisplay: {
             default: null,
             type: cc.Label,
         },
 
-        curScore: 0,
+        curCredit: 1000,
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
-        this.targetScore = this.curScore;
+        this.targetCredit = this.curCredit;
     },
 
     update(dt) {},
 
-    setCurScore(score) {
-        this.curScore = score;
+    setCredit(credit) {
+        this.curCredit = credit;
     },
 
-    updateScoreDisplay() {
-        this.scoreDisplay.string = `${this.curScore}`;
+    updateCreditDisplay() {
+        this.creditDisplay.string = `${this.curCredit}`;
     },
 
     /**
      * 設定分數跑表 Action
      */
-    setRunScoreAction() {
+    setRunCreditAction() {
         this.node.stopAllActions();
-        const callback = cc.callFunc(this.onRunScore, this);
+        const callback = cc.callFunc(this.onRunCredit, this);
         const delay = cc.delayTime(0.03);
         return cc.repeatForever(cc.sequence(callback, delay));
     },
@@ -49,30 +49,30 @@ cc.Class({
     /**
      * 開始分數跑表 Action
      */
-    startRunScore() {
-        // this.targetScore += score;
-        this.node.runAction(this.setRunScoreAction());
+    startRunCredit(credit) {
+        this.targetCredit += credit;
+        this.node.runAction(this.setRunCreditAction());
     },
 
     /**
      * 停止分數跑表 Action
      */
-    stopRunScore() {
+    stopRunCredit() {
         this.node.stopAllActions();
     },
 
     /**
      * 分數跑表，分數跑到目標值後停止並發事件
      */
-    onRunScore() {
-        if (this.curScore === this.targetScore) {
-            this.stopRunScore();
-            this.node.emit('scoreStop');
+    onRunCredit() {
+        if (this.curCredit === this.targetCredit) {
+            this.stopRunCredit();
+            this.node.emit('creditStop');
         }
         else {
             const spacingNumber = 1;
-            this.curScore -= spacingNumber;
-            this.scoreDisplay.string = `${this.curScore}`;
+            this.curCredit += spacingNumber;
+            this.creditDisplay.string = `${this.curCredit}`;
         }
     },
 });

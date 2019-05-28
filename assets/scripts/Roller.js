@@ -55,8 +55,15 @@ cc.Class({
         this.totalMoveSpacing = 0;
         this.symbolMoveDownCounts = 20;
         this.changeSymbolCount = 0;
-        this.symbolResult = [1, 3, 3, 3, 1, 1, 1, 3, 4];
-        this.initSymbol();
+        this.symbolResult = [];
+        this.symbolCounts = this.symbolRow * this.symbolColumn;
+        this.symbolIndexCounts = this.getSymbolIndexCounts();
+        this.isInitSymbol = false;
+        this.closeAllSymbolActive();
+    },
+
+    start() {
+        // this.initSymbol();
     },
 
     update(dt) {
@@ -79,7 +86,8 @@ cc.Class({
                     this.isStartRoll = false;
                     this.rollerState = rollerState.IDLE;
                     this.adjustSymbolPosition();
-                    this.startSymbolAnime(this.dealSymbolResult(this.getCurrentSymbolResult(this.symbolRow)));
+                    this.setFirstSymbol();
+                    // this.startSymbolAnime(this.dealSymbolResult(this.getCurrentSymbolResult(this.symbolRow)));
                     this.node.emit('rollerStop');
                     break;
                 default:
@@ -124,19 +132,38 @@ cc.Class({
             x = this.fisrtSymbolX;
             y -= this.symbolList[0].height;
         }
+
+        this.symbolCounts = this.symbolRow * this.symbolColumn;
+        this.symbolIndexCounts = this.getSymbolIndexCounts();
     },
+
+    closeAllSymbolActive() {
+        this.symbolList.forEach((symbol) => {
+            symbol.children.forEach((child) => {
+                child.active = false;
+            });
+        });
+    },
+
+    getSymbolIndexCounts() {
+        return this.symbolList[0].childrenCount;
+    },
+
     /**
      * 初始 Symbol
      */
     initSymbol() {
-        for (let i = 0; i < this.symbolList.length; i += 1) {
-            if (i >= this.symbolRow && i < this.symbolResult.length + this.symbolRow) {
-                this.setDisplaySymbol(this.symbolList[i], this.symbolResult[i - this.symbolRow]);
+        if (!this.isInitSymbol) {
+            for (let i = 0; i < this.symbolList.length; i += 1) {
+                if (i >= this.symbolRow && i < this.symbolResult.length + this.symbolRow) {
+                    this.setDisplaySymbol(this.symbolList[i], this.symbolResult[i - this.symbolRow]);
+                }
+                else {
+                    this.setDisplaySymbol(this.symbolList[i], this.getRandomSymbolIndex(this.symbolList[i].childrenCount));
+                }
+                this.symbolPositions[i] = this.symbolList[i].getPosition();
             }
-            else {
-                this.setDisplaySymbol(this.symbolList[i], this.getRandomSymbolIndex(this.symbolList[i].childrenCount));
-            }
-            this.symbolPositions[i] = this.symbolList[i].getPosition();
+            this.isInitSymbol = true;
         }
     },
 
@@ -165,6 +192,18 @@ cc.Class({
             for (let j = 0; j < this.symbolList[i].childrenCount; j += 1) {
                 const symbolComponent = this.symbolList[i].children[j].getComponent('Symbol');
                 this.symbolList[i].children[j].getComponent(cc.Sprite).spriteFrame = symbolComponent.blurSymbol;
+            }
+        }
+    },
+
+    /**
+     * 設定 Symbol 為第一張圖
+     */
+    setFirstSymbol() {
+        for (let i = 0; i < this.symbolList.length; i += 1) {
+            for (let j = 0; j < this.symbolList[i].childrenCount; j += 1) {
+                const symbolComponent = this.symbolList[i].children[j].getComponent('Symbol');
+                this.symbolList[i].children[j].getComponent(cc.Sprite).spriteFrame = symbolComponent.fisrtSymbol;
             }
         }
     },
@@ -283,47 +322,5 @@ cc.Class({
         }
 
         return symbols;
-    },
-
-    dealSymbolResult(symbolResult) {
-        const symboIndexList = [0, 1, 2, 3, 4];
-        const symbolWinInfoList = symboIndexList.map((value, index) => ({
-            index: value,
-            isWin: false,
-            positions: [],
-            winPoint: 0,
-        }));
-
-        const fisrtRowSymbolPosList = [];
-        const symbolPosOfRowList = [];
-        symbolResult.forEach((value, index) => {
-            if (index === 0 || index % this.symbolRow === 0) {
-                fisrtRowSymbolPosList.push(index);
-            }
-        });
-
-        for (let j = 0; j < this.symbolRow; j += 1) {
-            symbolPosOfRowList.push(fisrtRowSymbolPosList.map(val => val + j));
-        }
-
-        const winSymbolIndexList = symboIndexList.filter((value) => {
-            let rowCounts = 0;
-            symbolPosOfRowList.forEach((positions) => {
-                const result = positions.find(pos => symbolResult[pos] === value);
-                if (result !== undefined) ++rowCounts;
-            });
-            return rowCounts === this.symbolRow;
-        });
-
-        cc.log(`winSymbolIndexList:${winSymbolIndexList}`);
-
-        const winSymbolIndexPosList = [];
-        winSymbolIndexList.forEach((value) => {
-            symbolResult.forEach((symbl, pos) => {
-                if (value === symbl) winSymbolIndexPosList.push(pos + this.symbolRow);
-            });
-        });
-        cc.log(`winSymbolIndexPosList:${winSymbolIndexPosList}`);
-        return winSymbolIndexPosList;
     },
 });

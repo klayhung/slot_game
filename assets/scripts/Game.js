@@ -23,6 +23,11 @@ cc.Class({
             type: cc.Node,
         },
 
+        creditNode: {
+            default: null,
+            type: cc.Node,
+        },
+
         scoreNode: {
             default: null,
             type: cc.Node,
@@ -32,18 +37,38 @@ cc.Class({
             default: null,
             type: cc.Node,
         },
+
+        winloseNode: {
+            default: null,
+            type: cc.Node,
+        },
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
         this.rollerNode.on('rollerStop', this.rollerStopCB, this);
-        this.scoreNode.on('scoreStop', this.scoreStopCB, this);
+        this.creditNode.on('creditStop', this.creditStopCB, this);
+        // this.scoreNode.on('scoreStop', this.scoreStopCB, this);
         const node = cc.find('net');
         if (node !== null) {
             this.netNode = node;
             this.netNode.on('receiveServerMessage', this.receiveServerMessageCB, this);
         }
+    },
+
+    start() {
+        const roller = this.rollerNode.getComponent('Roller');
+        this.symbolCounts = roller.symbolCounts;
+        this.symbolIndexCounts = roller.symbolIndexCounts;
+        this.symbolRow = roller.symbolRow;
+
+        this.netNode.getComponent('Net').sendMessage('SymbolResult',
+            { symbolCounts: this.symbolCounts, symbolIndexCounts: this.symbolIndexCounts });
+
+        this.creditNode.getComponent('Credit').setCredit(1000);
+        this.creditNode.getComponent('Credit').updateCreditDisplay();
+        this.winloseNode.getComponent('WinLose').initWinlose(this.symbolIndexCounts, this.symbolRow);
     },
 
     update(dt) {},
@@ -54,20 +79,22 @@ cc.Class({
     onSpin() {
         this.buttonNode.getComponent(cc.Button).interactable = false; // 禁能
         this.rollerNode.getComponent('Roller').startRolling();
-        this.netNode.getComponent('Net').sendMessage('SlotSpin', { symbolCounts: 9, symbolIndexCounts: 5 });
+        this.netNode.getComponent('Net').sendMessage('SymbolResult',
+            { symbolCounts: this.symbolCounts, symbolIndexCounts: this.symbolIndexCounts });
     },
 
     /**
      * 滾輪停止後跑表
      */
     rollerStopCB() {
-        this.scoreNode.getComponent('Score').startRunScore();
+        // this.scoreNode.getComponent('Score').startRunScore();
+        this.creditNode.getComponent('Credit').startRunCredit(300);
     },
 
     /**
      * 跑表後停止滾輪動畫
      */
-    scoreStopCB() {
+    creditStopCB() {
         this.buttonNode.getComponent(cc.Button).interactable = true;
         this.rollerNode.getComponent('Roller').stopSymbolAnime();
     },
@@ -80,13 +107,10 @@ cc.Class({
         if (msg) {
             const pkg = JSON.parse(msg);
             switch (pkg.type) {
-                case 'GameInit':
+                case 'SymbolResult':
                     cc.log(pkg.message.symbols);
                     this.rollerNode.getComponent('Roller').setSymbolResult(pkg.message.symbols);
-                    break;
-                case 'SlotSpin':
-                    cc.log(pkg.message.symbols);
-                    this.rollerNode.getComponent('Roller').setSymbolResult(pkg.message.symbols);
+                    this.rollerNode.getComponent('Roller').initSymbol();
                     break;
                 default:
                     break;
