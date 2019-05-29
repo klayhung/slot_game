@@ -32,6 +32,11 @@ cc.Class({
         this.targetCredit = credit;
     },
 
+    addCredit(credit) {
+        this.curCredit += credit;
+        this.targetCredit += credit;
+    },
+
     updateCreditDisplay() {
         this.creditDisplay.string = `${this.curCredit}`;
     },

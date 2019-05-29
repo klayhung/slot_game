@@ -8,7 +8,7 @@ module.exports = {
      * @param {JSON} event
      */
     on_open(event) {
-        console.log(`client connected: ${event}`);
+        console.log(`client connected: ${JSON.stringify(event)}`);
         this.onOpenCB(event.data);
     },
 

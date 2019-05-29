@@ -90,9 +90,11 @@ cc.Class({
     onSpin() {
         this.buttonNode.getComponent(cc.Button).interactable = false; // 禁能
         this.rollerNode.getComponent('Roller').startRolling();
+        this.userNode.getComponent('User').addCredit(-this.totalBet);
+        this.creditNode.getComponent('Credit').addCredit(-this.totalBet);
+        this.creditNode.getComponent('Credit').updateCreditDisplay();
         this.netNode.getComponent('Net').sendMessage('SlotSpin',
             {
-                totalBet: this.totalBet,
                 symbolCounts: this.symbolCounts,
                 symbolIndexCounts: this.symbolIndexCounts,
             });
@@ -108,10 +110,17 @@ cc.Class({
             const winPositions = this.winloseNode.getComponent('WinLose').getWinPositions(this.symbolRow);
             this.rollerNode.getComponent('Roller').startSymbolAnime(winPositions);
             this.creditNode.getComponent('Credit').startRunCredit(totalWin);
+            this.userNode.getComponent('User').addCredit(totalWin);
         }
         else {
             this.buttonNode.getComponent(cc.Button).interactable = true;
         }
+
+        this.netNode.getComponent('Net').sendMessage('SaveDB',
+            {
+                credit: this.userNode.getComponent('User').userCredit,
+                totalBet: this.totalBet,
+            });
     },
 
     /**
@@ -139,11 +148,8 @@ cc.Class({
                     break;
                 case 'SlotSpin':
                     cc.log(pkg.message.symbols);
-                    cc.log(pkg.message.userCredit);
                     this.rollerNode.getComponent('Roller').setSymbolResult(pkg.message.symbols);
                     this.winloseNode.getComponent('WinLose').setWinLose(this.totalBet, pkg.message.symbols, this.symbolRow);
-                    this.creditNode.getComponent('Credit').setCredit(pkg.message.userCredit);
-                    this.creditNode.getComponent('Credit').updateCreditDisplay();
                     break;
                 default:
                     break;

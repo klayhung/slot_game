@@ -12,20 +12,9 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        userID: {
-            default: 0,
-            type: cc.Integer,
-        },
-
-        userName: {
-            default: 'default',
-            type: cc.String,
-        },
-
-        userCredit: {
-            default: 0,
-            type: cc.Integer,
-        },
+        userID: 0,
+        userName: '',
+        userCredit: 0,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -42,5 +31,13 @@ cc.Class({
         this.userID = userInfo.userID;
         this.userName = userInfo.userName;
         this.userCredit = userInfo.userCredit;
+    },
+
+    setCredit(credit) {
+        this.userCredit = credit;
+    },
+
+    addCredit(credit) {
+        this.userCredit += credit;
     },
 });
