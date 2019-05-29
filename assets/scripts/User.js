@@ -15,6 +15,16 @@ cc.Class({
         userID: 0,
         userName: '',
         userCredit: 0,
+
+        userIDDisplay: {
+            default: null,
+            type: cc.Label,
+        },
+
+        userNameDisplay: {
+            default: null,
+            type: cc.Label,
+        },
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -31,6 +41,8 @@ cc.Class({
         this.userID = userInfo.userID;
         this.userName = userInfo.userName;
         this.userCredit = userInfo.userCredit;
+        this.userIDDisplay.string = `user id : ${userInfo.userID}`;
+        this.userNameDisplay.string = `user name : ${userInfo.userName}`;
     },
 
     setCredit(credit) {

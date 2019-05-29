@@ -265,8 +265,8 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 300,
-      "y": -4,
+      "x": 351,
+      "y": -215,
       "z": 0
     },
     "_scale": {
@@ -12967,8 +12967,8 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
+      "x": -349,
+      "y": 211,
       "z": 0
     },
     "_scale": {
@@ -12989,7 +12989,7 @@
     "_skewX": 0,
     "_skewY": 0,
     "groupIndex": 0,
-    "_id": "c8WrCTKtZCgqfdjnzBlUDj"
+    "_id": "dbvEUxspxFRITuF9L9Zmya"
   },
   {
     "__type__": "f8e34aYIfpHjbkBV6qIFML+",
@@ -13002,7 +13002,9 @@
     "userID": 0,
     "userName": "",
     "userCredit": 0,
-    "_id": "63NNc1IFNCuYGIpi8NjqEx"
+    "userIDDisplay": null,
+    "userNameDisplay": null,
+    "_id": "98hHTI0xRBSqhfllyTGH1J"
   },
   {
     "__type__": "cc.Canvas",

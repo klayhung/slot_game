@@ -17,6 +17,11 @@ cc.Class({
             type: cc.Node,
         },
 
+        inputNode: {
+            default: null,
+            type: cc.Node,
+        },
+
         netNode: {
             default: null,
             type: cc.Node,
@@ -63,6 +68,8 @@ cc.Class({
                 case 'Login':
                     cc.log(JSON.stringify(pkg.message.userInfo));
                     this.userNode.getComponent('User').setUserInfo(pkg.message.userInfo);
+                    this.buttonNode.destroy();
+                    this.inputNode.destroy();
                     cc.director.loadScene('game');
                     break;
                 default:

@@ -58,6 +58,7 @@ cc.Class({
         const user = cc.find('user');
         if (user !== null) {
             this.userNode = user;
+            this.userNode.opacity = 255;
         }
 
         const net = cc.find('net');
