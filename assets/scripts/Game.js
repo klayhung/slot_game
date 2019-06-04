@@ -74,11 +74,7 @@ cc.Class({
         this.symbolIndexCounts = roller.symbolIndexCounts;
         this.symbolRow = roller.symbolRow;
 
-        // this.netNode.getComponent('Net').sendMessage('GameInit',
-        //     {
-        //         symbolCounts: this.symbolCounts,
-        //         symbolIndexCounts: this.symbolIndexCounts,
-        //     });
+        this.netNode.getComponent('Net').sendMessage('GameInit');
 
         const credit = this.userNode.getComponent('User').userCredit;
         this.creditNode.getComponent('Credit').setCredit(credit);
@@ -139,6 +135,7 @@ cc.Class({
     receiveServerMessageCB(msg) {
         if (msg) {
             const pkg = JSON.parse(msg);
+            cc.log(`Game receive: ${pkg.type}`);
             switch (pkg.type) {
                 case 'GameInit':
                     cc.log(pkg.message.odds);

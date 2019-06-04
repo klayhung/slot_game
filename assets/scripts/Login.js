@@ -64,6 +64,7 @@ cc.Class({
     receiveServerMessageCB(msg) {
         if (msg) {
             const pkg = JSON.parse(msg);
+            cc.log(`Login receive: ${pkg.type}`);
             switch (pkg.type) {
                 case 'Login':
                     cc.log(JSON.stringify(pkg.message.userInfo));
