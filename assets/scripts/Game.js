@@ -74,11 +74,11 @@ cc.Class({
         this.symbolIndexCounts = roller.symbolIndexCounts;
         this.symbolRow = roller.symbolRow;
 
-        this.netNode.getComponent('Net').sendMessage('GameInit',
-            {
-                symbolCounts: this.symbolCounts,
-                symbolIndexCounts: this.symbolIndexCounts,
-            });
+        // this.netNode.getComponent('Net').sendMessage('GameInit',
+        //     {
+        //         symbolCounts: this.symbolCounts,
+        //         symbolIndexCounts: this.symbolIndexCounts,
+        //     });
 
         const credit = this.userNode.getComponent('User').userCredit;
         this.creditNode.getComponent('Credit').setCredit(credit);
