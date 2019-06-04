@@ -157,4 +157,17 @@ cc.Class({
             }
         }
     },
+
+    onLogout() {
+        this.buttonNode.getComponent(cc.Button).interactable = false; // 禁能
+        const user = this.userNode.getComponent('User');
+        this.netNode.getComponent('Net').sendMessage('Logout', {
+            userID: user.userID,
+            userName: user.userName,
+            userPoint: user.userCredit,
+        });
+        this.userNode.destroy();
+        this.netNode.destroy();
+        cc.director.loadScene('login');
+    },
 });
