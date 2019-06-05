@@ -52,6 +52,7 @@ cc.Class({
 
     onLoad() {
         this.totalBet = 100;
+        this.totalWin = 0;
         this.rollerNode.on('rollerStop', this.rollerStopCB, this);
         this.creditNode.on('creditStop', this.creditStopCB, this);
         // this.scoreNode.on('scoreStop', this.scoreStopCB, this);
@@ -87,14 +88,7 @@ cc.Class({
     onSpin() {
         this.buttonNode.getComponent(cc.Button).interactable = false; // 禁能
         this.rollerNode.getComponent('Roller').startRolling();
-        this.userNode.getComponent('User').addCredit(-this.totalBet);
-        this.creditNode.getComponent('Credit').addCredit(-this.totalBet);
-        this.creditNode.getComponent('Credit').updateCreditDisplay();
-        this.netNode.getComponent('Net').sendMessage('SlotSpin',
-            {
-                symbolCounts: this.symbolCounts,
-                symbolIndexCounts: this.symbolIndexCounts,
-            });
+        this.netNode.getComponent('Net').sendMessage('SlotSpin', { totalBet: this.totalBet });
     },
 
     /**
@@ -102,22 +96,15 @@ cc.Class({
      */
     rollerStopCB() {
         // this.scoreNode.getComponent('Score').startRunScore();
-        const totalWin = this.winloseNode.getComponent('WinLose').getTotalWin();
-        if (totalWin > 0) {
+        if (this.totalWin > 0) {
             const winPositions = this.winloseNode.getComponent('WinLose').getWinPositions(this.symbolRow);
             this.rollerNode.getComponent('Roller').startSymbolAnime(winPositions);
-            this.creditNode.getComponent('Credit').startRunCredit(totalWin);
-            this.userNode.getComponent('User').addCredit(totalWin);
+            this.creditNode.getComponent('Credit').startRunCredit(this.totalWin);
+            this.userNode.getComponent('User').addCredit(this.totalWin);
         }
         else {
             this.buttonNode.getComponent(cc.Button).interactable = true;
         }
-
-        this.netNode.getComponent('Net').sendMessage('SaveDB',
-            {
-                credit: this.userNode.getComponent('User').userCredit,
-                totalBet: this.totalBet,
-            });
     },
 
     /**
@@ -138,14 +125,15 @@ cc.Class({
             cc.log(`Game receive: ${pkg.type}`);
             switch (pkg.type) {
                 case 'GameInit':
-                    cc.log(pkg.message.odds);
-                    cc.log(pkg.message.symbols);
                     this.rollerNode.getComponent('Roller').setSymbolResult(pkg.message.symbols);
                     this.rollerNode.getComponent('Roller').initSymbol();
                     this.winloseNode.getComponent('WinLose').initWinLose(this.symbolIndexCounts, pkg.message.odds);
                     break;
                 case 'SlotSpin':
-                    cc.log(pkg.message.symbols);
+                    this.totalWin = pkg.message.totalWin;
+                    this.userNode.getComponent('User').setCredit(pkg.message.credit);
+                    this.creditNode.getComponent('Credit').setCredit(pkg.message.credit);
+                    this.creditNode.getComponent('Credit').updateCreditDisplay();
                     this.rollerNode.getComponent('Roller').setSymbolResult(pkg.message.symbols);
                     this.winloseNode.getComponent('WinLose').setWinLose(this.totalBet, pkg.message.symbols, this.symbolRow);
                     break;
@@ -155,6 +143,9 @@ cc.Class({
         }
     },
 
+    /**
+     * 玩家按登出
+     */
     onLogout() {
         this.buttonNode.getComponent(cc.Button).interactable = false; // 禁能
         const user = this.userNode.getComponent('User');

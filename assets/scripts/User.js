@@ -41,8 +41,8 @@ cc.Class({
         this.userID = userInfo.userID;
         this.userName = userInfo.userName;
         this.userCredit = userInfo.userPoint;
-        this.userIDDisplay.string = `user id : ${userInfo.userID}`;
-        this.userNameDisplay.string = `user name : ${userInfo.userName}`;
+        this.userIDDisplay.string = `${userInfo.userID}`;
+        this.userNameDisplay.string = `${userInfo.userName}`;
     },
 
     setCredit(credit) {

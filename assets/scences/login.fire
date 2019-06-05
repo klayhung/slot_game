@@ -47,8 +47,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.5782958984375,
-      "y": 0.5782958984375,
+      "x": 0.6095703125,
+      "y": 0.6095703125,
       "z": 1
     },
     "_quat": {
@@ -1201,13 +1201,13 @@
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
-      "y": 0.5
+      "x": 0,
+      "y": 1
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 173,
-      "y": 567,
+      "x": 60,
+      "y": 616,
       "z": 0
     },
     "_scale": {
@@ -1256,17 +1256,17 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 175.08,
+      "width": 0,
       "height": 30
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
-      "y": 0.5
+      "x": 0,
+      "y": 1
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 2,
+      "x": -35,
       "y": 0,
       "z": 0
     },
@@ -1299,8 +1299,8 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_string": "user name :  ",
-    "_N$string": "user name :  ",
+    "_string": "",
+    "_N$string": "",
     "_fontSize": 30,
     "_lineHeight": 30,
     "_enableWrapText": true,
@@ -1341,13 +1341,13 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 106.71,
+      "width": 0,
       "height": 30
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
-      "y": 0.5
+      "x": 0,
+      "y": 1
     },
     "_position": {
       "__type__": "cc.Vec3",
@@ -1384,8 +1384,8 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_string": "user id :",
-    "_N$string": "user id :",
+    "_string": "",
+    "_N$string": "",
     "_fontSize": 30,
     "_lineHeight": 30,
     "_enableWrapText": true,
