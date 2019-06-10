@@ -37,12 +37,12 @@ cc.Class({
 
     },
 
-    setUserInfo(userInfo) {
-        this.userID = userInfo.userID;
-        this.userName = userInfo.userName;
-        this.userCredit = userInfo.userPoint;
-        this.userIDDisplay.string = `${userInfo.userID}`;
-        this.userNameDisplay.string = `${userInfo.userName}`;
+    setUser(user) {
+        this.userID = user.userID;
+        this.userName = user.userName;
+        this.userCredit = user.userPoint;
+        this.userIDDisplay.string = `${user.userID}`;
+        this.userNameDisplay.string = `${user.userName}`;
     },
 
     setCredit(credit) {

@@ -67,8 +67,8 @@ cc.Class({
             cc.log(`Login receive: ${pkg.type}`);
             switch (pkg.type) {
                 case 'Login':
-                    cc.log(JSON.stringify(pkg.message.userInfo));
-                    this.userNode.getComponent('User').setUserInfo(pkg.message.userInfo);
+                    cc.log(JSON.stringify(pkg.message.user));
+                    this.userNode.getComponent('User').setUser(pkg.message.user);
                     this.buttonNode.destroy();
                     this.inputNode.destroy();
                     cc.director.loadScene('game');
