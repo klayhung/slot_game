@@ -75,11 +75,11 @@ cc.Class({
         this.symbolIndexCounts = roller.symbolIndexCounts;
         this.symbolRow = roller.symbolRow;
 
-        this.netNode.getComponent('Net').sendMessage('GameInit');
-
-        const credit = this.userNode.getComponent('User').userCredit;
-        this.creditNode.getComponent('Credit').setCredit(credit);
+        const userComponent = this.userNode.getComponent('User');
+        this.creditNode.getComponent('Credit').setCredit(userComponent.userCredit);
         this.creditNode.getComponent('Credit').updateCreditDisplay();
+
+        this.netNode.getComponent('Net').sendMessage('GameInit', { userName: userComponent.userName });
     },
 
     /**
@@ -154,8 +154,10 @@ cc.Class({
             userName: user.userName,
             userPoint: user.userCredit,
         });
-        this.userNode.destroy();
-        this.netNode.destroy();
+        // this.userNode.destroy();
+        // this.netNode.destroy();
+        cc.game.removePersistRootNode(this.userNode);
+        cc.game.removePersistRootNode(this.netNode);
         cc.director.loadScene('login');
     },
 });
